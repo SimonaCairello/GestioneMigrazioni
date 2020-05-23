@@ -52,23 +52,34 @@ public class Model {
 		return list ;
 	}
 	
-	public void run(Integer stato, Integer anno) {
-		this.sim.run(stato, anno);
+	public List<Country> getCountries() {
+		List<Country> countries = new ArrayList<Country>();
+		countries.addAll(this.graph.vertexSet());
+		Collections.sort(countries);
+		return countries;
 	}
 	
-	public Integer getPassi() {
-		return this.sim.getPassi();
-	}
-	
-	public List<CountryAndNumber> getEventi() {
-		List<Event> eventi = this.sim.getEventi();
-		List<CountryAndNumber> list = new ArrayList<>();
-		
-		for(Event e : eventi) {
-			list.add(new CountryAndNumber(countriesMap.get(e.getStato()), e.getStanziali()));
+	public void simula(Country partenza) {
+		if(this.graph != null) {
+			sim.init(partenza, this.graph);
+			sim.run();
 		}
-		
-		return list;
 	}
+	
+	public Integer getT() {
+		return this.sim.getT();
+	}
+	
+	public List<CountryAndNumber> getStanziali(){
+		Map<Country, Integer> stanziali = this.sim.getStanziali();
+		List<CountryAndNumber> res = new ArrayList<>();
+		for(Country c : stanziali.keySet()) {
+			CountryAndNumber cn = new CountryAndNumber(c, stanziali.get(c));
+			res.add(cn);
+		}
+		Collections.sort(res);
+		return res;
+	}
+
 
 }

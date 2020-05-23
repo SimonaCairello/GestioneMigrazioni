@@ -1,74 +1,67 @@
 package it.polito.tdp.borders.model;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.PriorityQueue;
 
-import it.polito.tdp.borders.db.BordersDAO;
-import it.polito.tdp.borders.model.Event.EventType;
+import org.jgrapht.Graph;
+import org.jgrapht.Graphs;
+import org.jgrapht.graph.DefaultEdge;
 
 public class Simulator {
 	
-	private BordersDAO dao;
+	private Graph<Country, DefaultEdge> grafo;
+	
 	private PriorityQueue<Event> queue;
-	private List<Adiacenza> statiAdiacenti;
-	private Integer passi;
-	private List<Event> eventi;
-
-	public Simulator() {
-		this.dao = new BordersDAO();
-		this.eventi = new ArrayList<>();
+	
+	private int N_MIGRANTI = 1000;
+	private Country partenza;
+	
+	private int T = -1;
+	private Map<Country, Integer> stanziali;
+	
+	
+	public void init(Country partenza, Graph<Country, DefaultEdge> grafo) {
+		this.partenza = partenza;
+		this.grafo = grafo;
+		
+		this.T = 1;
+		stanziali = new HashMap<>();
+		for(Country c : this.grafo.vertexSet()) {
+			stanziali.put(c, 0);
+		}
+		this.queue = new PriorityQueue<Event>();
+		this.queue.add(new Event(T, partenza, N_MIGRANTI));
 	}
 	
-	public void run(Integer stato, Integer anno) {
-		this.queue = new PriorityQueue<>();
-		statiAdiacenti = this.dao.getCoppieAdiacenti(anno);
-		this.passi = 0;
-		
-		Event e = new Event(EventType.SPOSTAMENTO, 500, 500, 1, stato);
-		this.queue.add(e);
-		
-		while(!this.queue.isEmpty()) {
-			Event ev = this.queue.poll();
-			this.eventi.add(ev);
-			this.processEvent(ev);
-		}
-	}
-	
-	public void processEvent(Event e) {
-		List<Integer> adiacenti = new ArrayList<>();
-		
-		for(Adiacenza a : statiAdiacenti) {
-			if(a.getState1no()==e.getStato())
-				adiacenti.add(a.getState2no());
-		}
-		
-		Integer numMigranti = 0;
-		
-		while(e.getNonStanziali()>=adiacenti.size()) {
-			numMigranti = e.getNonStanziali()/adiacenti.size();
-			Event nuovo = null;
+	public void run() {
+		Event e;
+		while((e = this.queue.poll()) != null) {
+			this.T = e.getT();
 			
-			for(Integer s : adiacenti) {
-				nuovo = new Event(EventType.SPOSTAMENTO, (numMigranti/2)+1, (numMigranti/2), e.getTempo()+1, s);
-				this.queue.add(nuovo);
-				this.eventi.add(nuovo);
+			int nPersone = e.getN();
+			Country stato = e.getStato();
+			List<Country> vicini = Graphs.neighborListOf(this.grafo, stato);
+			
+			int migranti = (nPersone / 2) / vicini.size(); 
+			
+			if(migranti > 0) {
+				for(Country confinante : vicini) {
+					queue.add(new Event(e.getT() + 1, confinante, migranti));
+				}
 			}
+			
+			int stanziali = nPersone - migranti * vicini.size();
+			this.stanziali.put(stato, this.stanziali.get(stato) + stanziali);	
 		}
-	
-		passi = e.getTempo();
-		e.setStanziali();
-		e.setNonStanziali(0);
-		this.eventi.remove(eventi.size()-1);
-		this.eventi.add(e);
 	}
 	
-	public Integer getPassi() {
-		return this.passi;
+	public Map<Country, Integer> getStanziali(){
+		return this.stanziali;
 	}
 	
-	public List<Event> getEventi() {
-		return this.eventi;
+	public Integer getT() {
+		return this.T;
 	}
-
 }

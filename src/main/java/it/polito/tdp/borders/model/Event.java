@@ -2,67 +2,50 @@ package it.polito.tdp.borders.model;
 
 public class Event implements Comparable<Event>{
 	
-	public enum EventType {
-		SPOSTAMENTO
-	}
+	private int t;
+	private Country stato; //lo stato in cui arrivano i migranti al tempo t
+	private int n; //il numero di migranti che arrivano in "stato" al tempo t (la metà di essi, si sposterà)
 	
-	private EventType type;
-	private Integer stanziali;
-	private Integer nonStanziali;
-	private Integer tempo;
-	private Integer stato;
 	
-	public Event(EventType type, Integer stanziali, Integer nonStanziali, Integer tempo, Integer stato) {
-		this.type = type;
-		this.stanziali = stanziali;
-		this.nonStanziali = nonStanziali;
-		this.tempo = tempo;
+	public Event(int t, Country stato, int n) {
+		this.t = t;
 		this.stato = stato;
+		this.n = n;
 	}
 
-	public EventType getType() {
-		return type;
+
+	public int getT() {
+		return t;
 	}
 
-	public void setType(EventType type) {
-		this.type = type;
+
+	public void setT(int t) {
+		this.t = t;
 	}
 
-	public Integer getNonStanziali() {
-		return nonStanziali;
-	}
 
-	public void setNonStanziali(Integer nonStanziali) {
-		this.nonStanziali = nonStanziali;
-	}
-
-	public Integer getStanziali() {
-		return stanziali;
-	}
-
-	public void setStanziali() {
-		this.stanziali = stanziali+nonStanziali;
-	}
-
-	public Integer getTempo() {
-		return tempo;
-	}
-
-	public void setTempo(Integer tempo) {
-		this.tempo = tempo;
-	}
-
-	public Integer getStato() {
+	public Country getStato() {
 		return stato;
 	}
 
-	public void setStato(Integer stato) {
+
+	public void setStato(Country stato) {
 		this.stato = stato;
 	}
 
-	@Override
-	public int compareTo(Event o) {
-		return this.getTempo().compareTo(o.getTempo());
+
+	public int getN() {
+		return n;
 	}
 
+
+	public void setN(int n) {
+		this.n = n;
+	}
+
+
+	@Override
+	public int compareTo(Event o) {
+		return this.t - o.t;
+	}
 }
