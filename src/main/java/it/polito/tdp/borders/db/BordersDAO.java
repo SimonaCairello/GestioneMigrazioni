@@ -57,7 +57,7 @@ public class BordersDAO {
 		return null ;
 	}
 	
-	public List<Country> getCountriesFromYear(int anno,Map<Integer,Country> countriesMap) {
+	public List<Country> getCountriesFromYear(int anno, Map<Integer,Country> countriesMap) {
 		String sql = "select * from country " + 
 				"where CCode in ( " + 
 				"select state1no " + 

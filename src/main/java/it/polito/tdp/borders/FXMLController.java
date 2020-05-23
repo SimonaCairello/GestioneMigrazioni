@@ -30,7 +30,7 @@ public class FXMLController {
     private TextField txtAnno; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxNazione"
-    private ComboBox<?> boxNazione; // Value injected by FXMLLoader
+    private ComboBox<CountryAndNumber> boxNazione; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtResult"
     private TextArea txtResult; // Value injected by FXMLLoader
@@ -55,6 +55,8 @@ public class FXMLController {
 							c.getCountry().getStateName(), c.getNumber()));
 				}
 			}
+			
+			boxNazione.getItems().setAll(list);
 
 		} catch (NumberFormatException e) {
 			txtResult.appendText("Errore di formattazione dell'anno\n");
@@ -64,6 +66,17 @@ public class FXMLController {
 
     @FXML
     void doSimula(ActionEvent event) {
+    	txtResult.clear();
+  
+    	this.model.run(boxNazione.getValue().getCountry().getcCode(), Integer.parseInt(txtAnno.getText()));
+    	
+    	List<CountryAndNumber> stati = model.getCountryAndNumber();
+    	
+    	txtResult.appendText("Il numero di passi è: "+model.getPassi()+"\n");
+    	
+    	for(CountryAndNumber c : stati)
+    		txtResult.appendText(String.format("%s %d\n",
+					c.getCountry().getStateName(), c.getNumber()));
 
     }
 
